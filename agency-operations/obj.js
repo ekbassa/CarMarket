@@ -620,78 +620,229 @@ const carMarket = {
     sumOfAllTransactions: 0,
     numberOfTransactions: 0,
   },
-};
-
-/******************************************************************************* */
-
-
-
-
-
-
-/********************************************************************************* */
-
-  //              Search for a car agency by its name
-
-const getAgencyByName = function (name) {
-  const getAgency = carMarket.sellers.find(
-    (seller) => seller.agencyName === name
+  /************************************************************************************************************* */
+  //                                          Search for a car agency by its name or ID
+  findAgency(query) {
+    const agency = this.sellers.find(
+      (seller) => seller.agencyId === query || seller.agencyName === query
     );
-    
-    return getAgency;
-    
-  };
-  /********************************************************************************* */
 
-  //                Retrieve all agencies' names.
-  
-  const getAllAgencies = function () {
-    const allAgencies = sellers.map((seller) => seller.agencyName);
-  
+    if (agency) {
+      console.log(`${query}: Agency found!`);
+      return agency;
+    } else {
+      console.log(`${query}: is not exist!`);
+      return null;
+    }
+  },
+
+  // invoke the method out of the scope of the obj  using-->  const agencyByName = carMarket.findAgency('car mikeS');
+  /***************************************************************************************************************** */
+  //                                          Retrieve all agencies' names.
+
+  getAllAgenciesNames() {
+    const allAgencies = this.sellers.map((seller) => seller.agencyName);
     return allAgencies;
+  },
+
+  // invoke with :const res = carMarket.getAllAgenciesNames()
+  // console.log(res)
+
+  /***************************************************************************************************************** */
+  //                                                  Add a new car to an agency's inventory.
+
+  AddNewCar(agencyName, newCar) {
+    const agency = this.findAgency(agencyName);
+    const brand = agency.cars.find((brand) => brand === newCar.brand);
+
+    if (brand) {
+      // if brand is exist , just push the cat into the model array
+      brand.models.push(carModel);
+    } else {
+      //brand doesn't exist , create is and push the new car
+      const newBrand = {
+        brand: newCar.brand,
+        models: [newCar.model],
+      };
+      agency.cars.push(newBrand);
+    }
+    return agency.cars;
+  },
+
+  /* const newCar = {
+    brand: "Mercedes",
+    model: {
+      name: "E200",
+      year: 2022,
+      price: 120000,
+      carNumber: "ABC19923",
+      ownerId: "26_IPfHU1",
+    },
   };
-/***********************************************************************************/ 
+  const car = {
+    brand: "toyota",
+    model: {
+      name: "corolla",
+      year: 2012,
+      price: 12000,
+      carNumber: "ABC989923",
+      ownerId: "26_IPfHU1",
+    },
+  };
 
-//                  Add a new car to an agency's inventory
+  const res = carMarket.AddNewCar('CarMax',newCar);
+  const res1 = carMarket.AddNewCar('CarMax',car)
+  console.log(res)
+*/
+  /************************************************************************************************************************************** */
+  //                                                     Remove a car from an agency's inventory.
 
-const addNewCar = function (agencyName, newCar) {
+  removeCar(agencyName, carToRemove) {
+    const agency = this.findAgency(agencyName);
 
-  const agency = getAgencyByName(agencyName);
-  const BrandExists = agency.cars.find((brand) => brand === newCar.brand);
+    //check if the car is exist
+    const findCarIndex = agency.cars.findIndex(
+      (car) =>
+        car.brand === carToRemove.brand && car.models === carToRemove.carNumber
+    );
+
+    if (findCarIndex !== -1) {
+      // the car was found
+      agency.cars[findCarIndex].models = agency.cars[
+        findCarIndex
+      ].models.filter((car) => car.carNumber !== carToRemove.carNumber);
+    }
+    return agency.cars;
+  },
+  /*const res = carMarket.removeCar('CarMax',car);
+        console.log(res)
+      */
+  /*********************************************************************************************************************** */
+//                   Update the price of a specific car in an agency (Method:  updateCarPrice )
+// updateCarPrice(agencyName,carToUpdatePrice){
+//   const agency = this.findAgency(agencyName);
+//   const findCar = agency.cars.find((car)=>{
+//     return car.brand === carToUpdatePrice.brand && car.models.find((model)=>model.carNumber === carToUpdatePrice.model.carNumber);
+//   });
+//   if (findCar){
+//     const findModel = findCar.models.find((model)=> model.carNumber === carToUpdatePrice.model.carNumber);
+
+//     if (findModel){
+//       findModel.price = carToUpdatePrice.model.price;
+//     }
+//   }
+//   return agency
+// }
+
+// const car = {
+//   brand: "toyota",
+//   model: {
+//     name: "Corolla",
+//     year: 2020,
+//     price: 100000,
+//     carNumber: "hCzl",
+//     ownerId: "Plyq5M5AZ",
+//   },
+// };
+
+// const res = carMarket.updateCarPrice('Best Deal',car);
+//   console.log(res) 
+
+
+
+/****************************************************************************************************************************** */
+/**Calculate and return the total revenue for a specific agency (Method:
+getTotalAgencyRevenue ). */                                
+
+
+getTotalAgencyRevenue(agencyName) {
+  const agency = this.findAgency(agencyName);
+
+  // Calculate the total value of cars in the inventory
+  const totalCarValue = agency.cars.reduce((total, car) => {
+    return total + car.models.reduce((carTotal, model) => carTotal + model.price, 0);
+  }, 0);
+
+  // Add the cash, credit, and car value to get the total revenue
+  const totalRevenue = agency.cash + agency.credit + totalCarValue;
+
+  return totalRevenue;
+},
+
+/****************************************************************************************** */
+
+//                Transfer a car from one agency to another (Method:  transferCarBetweenAgencies
+
+
+transferCarBetweenAgencies(sourceAgency, destinationAgency,carToTransfer){
+  const source = this.findAgency(sourceAgency);
+  const destination = this.findAgency(destinationAgency);
+
+  //check if the car exists within the source agency 
+
+  const isCarFound = source.cars.find((car)=>{
+     return car.models.find((model)=>model.carNumber === carToTransfer.model.carNumber)
+    })
+
+    return isCarFound;
+
+    if (isCarFound){
+      // remove the car, using filter to create an other array without the specified car
+
+      const updatedSource = source.cars.map((car)=>{
+        car.models = car.models.filter((model)=> model.carNumber !== carToTransfer.model.carNumber)
+        return car
+      })
+      source.cars = updatedSource;
+
+      // move to destination
+      destination.cars.push({
+        brand:carToTransfer.brand,
+        models:[carToTransfer.model],
+      })
+    }
+
+    return source.cars;
+
+}
+
+
+
+/*********************************************************************************************** */
   
 
-  if (BrandExists){
-      BrandExists.models.push(newCar);
-  }
-  else{
-    // brand is not exist , we have to create it first
-        const  newBrand = {
-          brand:  newCar.brand,
-          models: [newCar.model]
-        }
 
-        agency.cars.push(newBrand)    
-  }
-  
-  return ;
+// module.exports = carMarket;
+/************************************************************************************************************* */
 
+//                                                      Change the cash or credit of an agency
+
+const changeCash = function (agencyName) {
+  const newCash = carMarket.findAgency(agencyName).cash + 1000;
+  return newCash;
 };
 
+// const res = changeCash("Best Deal");
+// console.log(res);
+/******************************************************************************************************************** */
 
-const newCar = {
-  brand: "Mercedes",
+// const res = carMarket.getTotalAgencyRevenue('Best Deal')
+// console.log(res)
+
+
+
+
+const car = {
+  brand: "toyota",
   model: {
-    name: "E200",
-    year: 2022,
-    price: 120000,
-    carNumber: "ABC19923",
-    ownerId: "26_IPfHU1",
+    name: "Corolla",
+    year: 2020,
+    price: 111900,
+    carNumber: "hCzl",
+    ownerId: "Plyq5M5AZ",
   },
 };
 
-const res = addNewCar("CarMax", newCar);
-console.log(carMarket);
 
-/**************************************************************************************************** */
-
-
+const res = findCar('Best Deal', car);
+console.log(res)
