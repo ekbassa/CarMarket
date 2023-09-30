@@ -718,101 +718,140 @@ const carMarket = {
         console.log(res)
       */
   /*********************************************************************************************************************** */
-//                   Update the price of a specific car in an agency (Method:  updateCarPrice )
-// updateCarPrice(agencyName,carToUpdatePrice){
-//   const agency = this.findAgency(agencyName);
-//   const findCar = agency.cars.find((car)=>{
-//     return car.brand === carToUpdatePrice.brand && car.models.find((model)=>model.carNumber === carToUpdatePrice.model.carNumber);
-//   });
-//   if (findCar){
-//     const findModel = findCar.models.find((model)=> model.carNumber === carToUpdatePrice.model.carNumber);
+  //                   Update the price of a specific car in an agency (Method:  updateCarPrice )
+  // updateCarPrice(agencyName,carToUpdatePrice){
+  //   const agency = this.findAgency(agencyName);
+  //   const findCar = agency.cars.find((car)=>{
+  //     return car.brand === carToUpdatePrice.brand && car.models.find((model)=>model.carNumber === carToUpdatePrice.model.carNumber);
+  //   });
+  //   if (findCar){
+  //     const findModel = findCar.models.find((model)=> model.carNumber === carToUpdatePrice.model.carNumber);
 
-//     if (findModel){
-//       findModel.price = carToUpdatePrice.model.price;
-//     }
-//   }
-//   return agency
-// }
+  //     if (findModel){
+  //       findModel.price = carToUpdatePrice.model.price;
+  //     }
+  //   }
+  //   return agency
+  // }
 
-// const car = {
-//   brand: "toyota",
-//   model: {
-//     name: "Corolla",
-//     year: 2020,
-//     price: 100000,
-//     carNumber: "hCzl",
-//     ownerId: "Plyq5M5AZ",
-//   },
-// };
+  // const car = {
+  //   brand: "toyota",
+  //   model: {
+  //     name: "Corolla",
+  //     year: 2020,
+  //     price: 100000,
+  //     carNumber: "hCzl",
+  //     ownerId: "Plyq5M5AZ",
+  //   },
+  // };
 
-// const res = carMarket.updateCarPrice('Best Deal',car);
-//   console.log(res) 
+  // const res = carMarket.updateCarPrice('Best Deal',car);
+  //   console.log(res)
 
+  /****************************************************************************************************************************** */
+  /**Calculate and return the total revenue for a specific agency (Method:
+getTotalAgencyRevenue ). */
 
+  getTotalAgencyRevenue(agencyName) {
+    const agency = this.findAgency(agencyName);
 
-/****************************************************************************************************************************** */
-/**Calculate and return the total revenue for a specific agency (Method:
-getTotalAgencyRevenue ). */                                
+    // Calculate the total value of cars in the inventory
+    const totalCarValue = agency.cars.reduce((total, car) => {
+      return (
+        total +
+        car.models.reduce((carTotal, model) => carTotal + model.price, 0)
+      );
+    }, 0);
 
+    // Add the cash, credit, and car value to get the total revenue
+    const totalRevenue = agency.cash + agency.credit + totalCarValue;
 
-getTotalAgencyRevenue(agencyName) {
-  const agency = this.findAgency(agencyName);
+    return totalRevenue;
+  },
 
-  // Calculate the total value of cars in the inventory
-  const totalCarValue = agency.cars.reduce((total, car) => {
-    return total + car.models.reduce((carTotal, model) => carTotal + model.price, 0);
-  }, 0);
+  /****************************************************************************************** */
 
-  // Add the cash, credit, and car value to get the total revenue
-  const totalRevenue = agency.cash + agency.credit + totalCarValue;
+  //                Transfer a car from one agency to another (Method:  transferCarBetweenAgencies
 
-  return totalRevenue;
-},
+  // transferCarBetweenAgencies(sourceAgency, destinationAgency,carToTransfer){
+  //   const source = this.findAgency(sourceAgency);
+  //   const destination = this.findAgency(destinationAgency);
 
-/****************************************************************************************** */
+  //   //check if the car exists within the source agency
 
-//                Transfer a car from one agency to another (Method:  transferCarBetweenAgencies
+  //   const isCarFound = source.cars.find((car)=>{
+  //      return car.models.find((model)=>model.carNumber === carToTransfer.model.carNumber)
+  //     })
 
+  //     return isCarFound;
 
-transferCarBetweenAgencies(sourceAgency, destinationAgency,carToTransfer){
-  const source = this.findAgency(sourceAgency);
-  const destination = this.findAgency(destinationAgency);
+  // if (isCarFound){
+  //   // remove the car, using filter to create an other array without the specified car
 
-  //check if the car exists within the source agency 
+  //   const updatedSource = source.cars.map((car)=>{
+  //     car.models = car.models.filter((model)=> model.carNumber !== carToTransfer.model.carNumber)
+  //     return car
+  //   })
+  //   source.cars = updatedSource;
 
-  const isCarFound = source.cars.find((car)=>{
-     return car.models.find((model)=>model.carNumber === carToTransfer.model.carNumber)
-    })
+  //   // move to destination
+  //   destination.cars.push({
+  //     brand:carToTransfer.brand,
+  //     models:[carToTransfer.model],
+  //   })
+  // }
 
-    return isCarFound;
+  // return source.cars;
 
-    if (isCarFound){
-      // remove the car, using filter to create an other array without the specified car
+  /*****************************   Customer Methods  */
 
-      const updatedSource = source.cars.map((car)=>{
-        car.models = car.models.filter((model)=> model.carNumber !== carToTransfer.model.carNumber)
-        return car
-      })
-      source.cars = updatedSource;
+  //                Calculate the total value of all cars owned by a specific customer
 
-      // move to destination
-      destination.cars.push({
-        brand:carToTransfer.brand,
-        models:[carToTransfer.model],
-      })
+  getCustomerTotalCarValue(customerName) {
+    const customer = this.customers.find(
+      (customer) => customer.name === customerName
+    );
+
+    if (customer) {
+      const totalCarsValue = customer.cars.reduce(
+        (total, car) => total + car.price,
+        0
+      );
+      return totalCarsValue;
     }
+  },
 
-    return source.cars;
+  /*********************   Car Operation */
+  //                Return the most expensive car available for sale (Method:  getMostExpensiveCar )
 
-}
+  getMostExpensiveCar: function () {
+    // Declare a variable to store the most expensive car
+    let mostExpensiveCar = null;
+  
+    this.sellers.forEach((seller) => {
+      seller.cars.forEach((car) => {
+        car.models.forEach((model) => {
 
-
-
-/*********************************************************************************************** */
+          // Check if the current model is more expensive than the current mostExpensiveCar
+          if (mostExpensiveCar === null || model.price > mostExpensiveCar.price) {
+            
+            // If true, update mostExpensiveCar with information from the current model and car
+            mostExpensiveCar = { ...model, brand: car.brand, carNumber: model.carNumber, ownerId: model.ownerId };
+          }
+        });
+      });
+    });
+  
+    // Return the mostExpensiveCar found during the iteration
+    return mostExpensiveCar;
+  },
   
 
+ 
+  /*********************************************************************************************** */
+} // End of Obj
 
-// module.exports = carMarket;
+module.exports = carMarket;
 /************************************************************************************************************* */
 
 //                                                      Change the cash or credit of an agency
@@ -829,20 +868,141 @@ const changeCash = function (agencyName) {
 // const res = carMarket.getTotalAgencyRevenue('Best Deal')
 // console.log(res)
 
+/**************************************************************************************************** */
+//                                    Customer Object
+
+const customer = {
+  name: "Lilah Goulding",
+  id: "BGzHhjnE8",
+  cars: [
+    {
+      name: "Corolla",
+      year: 2013,
+      price: 40570,
+      carNumber: "16da1",
+      ownerId: "BGzHhjnE8",
+    },
+  ],
+};
+
+/**********************    Customer Operations           ******************** */
+//                    Search for a customer by their name or ID.
+
+const getCustomerByName = function (customerName) {
+  const findCustomer = carMarket.customers.find(
+    (customer) => customer.name === customerName.name
+  );
+
+  return findCustomer;
+};
+
+// const res = getCustomerByName(customer);
+// console.log(res);
+/**************************************************************************************************** */
+
+/************************************************************************************************** */
+//                          Retrieve all customers' names.
+
+const retrieveAllCustomerNames = function () {
+  const names = carMarket.customers.map((customer) => customer.name);
+  return names;
+};
+
+// const res = retrieveAllCustomerNames();
+// console.log(res);
+
+/*************************************************************************************************** */
+//                            Change the cash of a customer.
+
+const changeCustomerCash = function (customerToChange) {
+  const findCustomer = getCustomerByName(customer);
+
+  findCash = findCustomer.cash += 2000;
+  return findCustomer;
+};
+
+// const res = changeCustomerCash(customer);
+// console.log(res);
+
+/************************************************************************************************ */
+
+//                        invoking getCustomerTotalCarValue()
+
+// const res = carMarket.getCustomerTotalCarValue('Ravi Murillo');
+// console.log(res);
+
+/************************************************************************************************ */
+
+//                                Car Operations
+//                          Retrieve all cars available for purchase.
+
+// const retrieveAllAvailAbleCarsForPurchase = function () {
+//   const carArr = [];
+//   const getAllCars = carMarket.sellers.map((seller) => {
+//     return seller.cars.filter((car) =>
+//       car.models.filter((model) => model.price > 0)
+//     );
+//   });
+
+//   return getAllCars;
+// };
+
+const retrieveAllAvailableCarsForPurchase = function () {
+  const allCars = [];
+
+  carMarket.sellers.forEach((seller)=>{
+    seller.cars.forEach((car)=>{
+      const availableCars =   car.models.filter((model)=>model.price !== undefined && model.price !== null);
+      
+      if (availableCars.length > 0){
+        allCars.push({...car,models:availableCars})
+      }
+    })
+
+  })
+  return allCars
+
+}
+   
+
+//              Invocation code here
+
+// const res = retrieveAllAvailableCarsForPurchase();
+// console.log(res);
+
+/************************************************************************************** */
+
+/*Search for cars based on certain criteria. The search parameters should include the
+production year, price, and optionally, the brand of the car. */   
 
 
+const searchCar = function (price, year) {
+  const selectedCars = [];
 
-const car = {
-  brand: "toyota",
-  model: {
-    name: "Corolla",
-    year: 2020,
-    price: 111900,
-    carNumber: "hCzl",
-    ownerId: "Plyq5M5AZ",
-  },
+  carMarket.sellers.forEach((seller) => {
+    const myCars = seller.cars.filter((car) => 
+      car.models.some((model) => model.price <= price && model.year >= year)
+    );
+
+    if (myCars.length > 0) {
+      selectedCars.push(...myCars.map((myCar) => ({ ...myCar, models: myCar.models.filter((model) => model.price <= price && model.year >= year) })));
+    }
+  });
+
+  return selectedCars;
 };
 
 
-const res = findCar('Best Deal', car);
-console.log(res)
+/**                                  invocation code here  */
+
+// const results = searchCar(100000, 2020);
+// console.log(results);
+
+
+/************************************************************************************* */
+
+
+// const res = carMarket.getMostExpensiveCar();
+// console.log(res)
+/************************************************************************************ */
+
