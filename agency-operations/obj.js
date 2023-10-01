@@ -771,37 +771,43 @@ getTotalAgencyRevenue ). */
 
   /****************************************************************************************** */
 
-  //                Transfer a car from one agency to another (Method:  transferCarBetweenAgencies
 
-  // transferCarBetweenAgencies(sourceAgency, destinationAgency,carToTransfer){
-  //   const source = this.findAgency(sourceAgency);
-  //   const destination = this.findAgency(destinationAgency);
-
-  //   //check if the car exists within the source agency
-
-  //   const isCarFound = source.cars.find((car)=>{
-  //      return car.models.find((model)=>model.carNumber === carToTransfer.model.carNumber)
-  //     })
-
-  //     return isCarFound;
-
-  // if (isCarFound){
-  //   // remove the car, using filter to create an other array without the specified car
-
-  //   const updatedSource = source.cars.map((car)=>{
-  //     car.models = car.models.filter((model)=> model.carNumber !== carToTransfer.model.carNumber)
-  //     return car
-  //   })
-  //   source.cars = updatedSource;
-
-  //   // move to destination
-  //   destination.cars.push({
-  //     brand:carToTransfer.brand,
-  //     models:[carToTransfer.model],
-  //   })
-  // }
-
-  // return source.cars;
+  transferCarBetweenAgencies(sourceAgency, destinationAgency,carToTransfer){
+      const source = this.findAgency(sourceAgency);
+      const destination = this.findAgency(destinationAgency);
+  
+      //check if the car exists within the source agency
+  
+      const isCarFound = source.cars.find((car)=>{
+         return car.models.find((model)=>model.carNumber === carToTransfer.models[0].carNumber)
+        })
+  
+        // return isCarFound;
+  
+    if (isCarFound){
+      // remove the car, using filter to create an other array without the specified car
+      
+       console.log(isCarFound); 
+      
+      const updatedSource = source.cars.map((car)=>{
+        car.models = car.models.filter((model)=> model.carNumber !== carToTransfer.model.carNumber)
+        return car
+      })
+      source.cars = updatedSource;
+      console.log('source cars -->',source.cars)
+      // move to destination
+      destination.cars.push({
+        brand:carToTransfer.brand,
+        models:[carToTransfer.model],
+      })
+    }
+    else{
+      return isCarFound
+    }
+  
+    return source.cars;
+  },
+  //         
 
   /*****************************   Customer Methods  */
 
@@ -1005,4 +1011,19 @@ const searchCar = function (price, year) {
 // const res = carMarket.getMostExpensiveCar();
 // console.log(res)
 /************************************************************************************ */
+const car = {
+  brand: 'bmw',
+  models:[
+    {
+    name: "X6",
+    year: 2020,
+    price: 966500,
+    carNumber: "S6DL1",
+    ownerId: "Plyq5M5AZ",
+    }
+],
+}
+  
+ 
 
+const res = carMarket.transferCarBetweenAgencies('Best Deal','CarMax',car);
